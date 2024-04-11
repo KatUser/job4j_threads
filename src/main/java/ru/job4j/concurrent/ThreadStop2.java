@@ -16,7 +16,6 @@ public class ThreadStop2 {
                             System.out.println(Thread.currentThread().getState());
                         }
                     }
-
                 }
         );
         progress.start();
