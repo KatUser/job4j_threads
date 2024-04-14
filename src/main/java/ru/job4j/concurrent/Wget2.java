@@ -6,41 +6,43 @@ import java.nio.file.Files;
 
 public class Wget2 implements Runnable {
     public final String url;
+    public final File file;
     private final int speed;
 
-    public Wget2(String url, int speed) {
+    public Wget2(String url, File file, int speed) {
         this.url = url;
+        this.file = file;
         this.speed = speed;
     }
 
     @Override
     public void run() {
         long startAt = System.currentTimeMillis();
-        File file = new File("testFile.txt");
         try (InputStream inputStream = new URL(url).openStream();
             FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             System.out.println("Opening connection to URL: "
                     + (System.currentTimeMillis() - startAt) + " ms.");
+
             byte[] dataBuffer = new byte[speed];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(dataBuffer, 0, dataBuffer.length)) != -1) {
-                long timeWhenStartedLoading = System.nanoTime();
-                fileOutputStream.write(dataBuffer, 0, bytesRead);
-                long timeWhenLoaded = System.nanoTime();
-                long diffTime = timeWhenLoaded - timeWhenStartedLoading;
-                System.out.println("Bytes read : "
-                        + bytesRead
-                        + ", in "
-                        + (diffTime)
-                        + " nanos.");
-                long bytesReadPerMs = bytesRead * 1_000_000L / diffTime;
-                if (bytesReadPerMs  >= speed) {
-                    long sleepTime = ((bytesReadPerMs) / speed);
+            long timeWhenBytesReceivedReachedSpeed = 0; /* когда сумма полученных байт = speed */
+            int allBytesReceived = 0; /*  общее число скачанных байт */
+            int bytesReadAtATime; /* кол-во байт, скачанных за раз */
+            long startTime = System.currentTimeMillis();
+
+            while ((bytesReadAtATime = inputStream.read(dataBuffer, 0, dataBuffer.length)) != -1) {
+                fileOutputStream.write(dataBuffer, 0, bytesReadAtATime);
+                allBytesReceived += bytesReadAtATime;
+                timeWhenBytesReceivedReachedSpeed += (System.currentTimeMillis() - startTime);
+
+                if (allBytesReceived >= speed && (timeWhenBytesReceivedReachedSpeed <= 1_000)) {
                     System.out.println("The thread is sleeping for "
-                            + sleepTime
+                            + (timeWhenBytesReceivedReachedSpeed)
                             + " milliseconds."
                     );
-                    Thread.sleep(sleepTime);
+                    Thread.sleep(timeWhenBytesReceivedReachedSpeed);
+                    timeWhenBytesReceivedReachedSpeed = 0;
+                    allBytesReceived = 0;
+                    startTime = System.currentTimeMillis();
                 }
             }
             System.out.println(Files.size(file.toPath()) + " bytes");
@@ -50,10 +52,10 @@ public class Wget2 implements Runnable {
     }
 
     public static void validateArguments(String[] args) throws IOException {
-        if (args.length < 2) {
+        if (args.length < 3) {
             System.out.println("Not enough arguments passed to the app.");
         }
-        if (args[0].length() < 1 || args[1].length() < 1) {
+        if (args[0].length() < 1 || args[1].length() < 1 || args[2].length() < 1) {
             System.out.println("Incorrect arguments are passed to the app.");
         }
         URL url = new URL(args[0]);
@@ -67,8 +69,9 @@ public class Wget2 implements Runnable {
     public static void main(String[] args) throws InterruptedException, IOException {
        validateArguments(args);
        String url = args[0];
-       int speed = Integer.parseInt(args[1]);
-       Thread wget = new Thread(new Wget2(url, speed));
+       File file = new File(args[1]);
+       int speed = Integer.parseInt(args[2]);
+       Thread wget = new Thread(new Wget2(url, file, speed));
        wget.start();
        wget.join();
     }
