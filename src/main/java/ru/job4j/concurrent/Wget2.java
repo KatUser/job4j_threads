@@ -32,17 +32,19 @@ public class Wget2 implements Runnable {
             while ((bytesReadAtATime = inputStream.read(dataBuffer, 0, dataBuffer.length)) != -1) {
                 fileOutputStream.write(dataBuffer, 0, bytesReadAtATime);
                 allBytesReceived += bytesReadAtATime;
-                timeWhenBytesReceivedReachedSpeed += (System.currentTimeMillis() - startTime);
 
-                if (allBytesReceived >= speed && (timeWhenBytesReceivedReachedSpeed <= 1_000)) {
-                    System.out.println("The thread is sleeping for "
-                            + (timeWhenBytesReceivedReachedSpeed)
-                            + " milliseconds."
-                    );
-                    Thread.sleep(timeWhenBytesReceivedReachedSpeed);
-                    timeWhenBytesReceivedReachedSpeed = 0;
-                    allBytesReceived = 0;
-                    startTime = System.currentTimeMillis();
+                if (allBytesReceived >= speed) { /*  проверка кол-ва байт */
+                    timeWhenBytesReceivedReachedSpeed += (System.currentTimeMillis() - startTime);
+                    if (timeWhenBytesReceivedReachedSpeed <= 1_000) {
+                        System.out.println("The thread is sleeping for "
+                                + (timeWhenBytesReceivedReachedSpeed)
+                                + " milliseconds."
+                        );
+                        Thread.sleep(timeWhenBytesReceivedReachedSpeed);
+                        timeWhenBytesReceivedReachedSpeed = 0;
+                        allBytesReceived = 0;
+                        startTime = System.currentTimeMillis();
+                    }
                 }
             }
             System.out.println(Files.size(file.toPath()) + " bytes");
