@@ -42,9 +42,9 @@ public class Wget2 implements Runnable {
                         );
                         Thread.sleep(timeWhenBytesReceivedReachedSpeed);
                         timeWhenBytesReceivedReachedSpeed = 0;
-                        allBytesReceived = 0;
-                        startTime = System.currentTimeMillis();
                     }
+                    allBytesReceived = 0;
+                    startTime = System.currentTimeMillis();
                 }
             }
             System.out.println(Files.size(file.toPath()) + " bytes");
