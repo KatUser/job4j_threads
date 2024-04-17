@@ -2,7 +2,7 @@ package ru.job4j;
 
 public final class DCLSingleton {
 
-    private static volatile DCLSingleton instance;
+    private static volatile DCLSingleton instance; /*volatile, то чтение и запись переменной будет происходить только из RAM памяти процессора.*/
 
     public static DCLSingleton getInstance() {
         if (instance == null) {
