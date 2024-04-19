@@ -27,5 +27,7 @@ public class ShareNotSafe {
         first.join();
         second.join();
         System.out.println(cache.findById(1).getName());
+        System.out.println(cache.findById(1));
+        System.out.println(cache.findAll());
     }
 }
