@@ -10,12 +10,12 @@ public class ContentParser {
         this.file = file;
     }
 
-    public String getContent(Predicate<Character> filter) {
+    public String parseContent(Predicate<Character> filter) {
         StringBuilder output = new StringBuilder();
         try (InputStream input = new FileInputStream(file)) {
             int data;
             char ch;
-            while ((data = input.read()) > 0) {
+            while ((data = input.read()) != -1) {
                 ch = (char) data;
                 if (filter.test(ch)) {
                     output.append(ch);
@@ -25,5 +25,13 @@ public class ContentParser {
             e.printStackTrace();
         }
         return output.toString();
+    }
+
+    public String getContent() {
+        return parseContent(character -> true);
+    }
+
+    public String getContentWithoutUnicode() {
+        return parseContent(character -> character < 0x80);
     }
 }
