@@ -2,10 +2,7 @@ package ru.job4j.cash;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.NoSuchElementException;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AccountStorageTest {
 
@@ -79,21 +76,17 @@ class AccountStorageTest {
     }
 
     @Test
-    void whenTransferFailsDueToNonExistingTargetAccount() {
+    void whenTransferFailsDueToNonExistingDestinationAccount() {
         var storage = new AccountStorage();
         storage.add(new Account(1, 100));
-        assertThatThrownBy(() -> storage.transfer(1, 3, 100))
-                .isInstanceOf(NoSuchElementException.class)
-                .hasMessageContaining("No value present");
+        assertThat(storage.transfer(1, 2, 100)).isFalse();
     }
 
     @Test
     void whenTransferFailsDueToNonExistingSourceAccount() {
         var storage = new AccountStorage();
         storage.add(new Account(1, 100));
-        assertThatThrownBy(() -> storage.transfer(1, 3, 100))
-                .isInstanceOf(NoSuchElementException.class)
-                .hasMessageContaining("No value present");
+        assertThat(storage.transfer(2, 1, 100)).isFalse();
     }
 
     @Test

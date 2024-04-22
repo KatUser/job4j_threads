@@ -36,14 +36,13 @@ public class AccountStorage {
         Optional<Account> accountTransferFrom =  getById(fromId);
         Optional<Account> accountTransferTo =  getById(toId);
 
-        int fromAccAmount = getById(fromId).get().amount();
-        int toAccAmount = getById(toId).get().amount();
-
         if (accountTransferFrom.isPresent() && accountTransferTo.isPresent()
-                && accountTransferFrom.get().amount() >= amount & amount > 0) {
+                && accountTransferFrom.get().amount() >= amount && amount > 0) {
 
-            managedToTransfer = update(new Account(fromId, fromAccAmount - amount))
-            && update(new Account(toId, toAccAmount + amount));
+            managedToTransfer = update(new Account(fromId,
+                    accountTransferFrom.get().amount() - amount))
+            && update(new Account(toId,
+                    accountTransferTo.get().amount() + amount));
         }
         return managedToTransfer;
     }
