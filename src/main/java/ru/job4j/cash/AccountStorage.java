@@ -12,26 +12,19 @@ public class AccountStorage {
     private final HashMap<Integer, Account> accounts = new HashMap<>();
 
     public synchronized boolean add(Account account) {
-        boolean managedToAddAccount = false;
-        if (!accounts.containsValue(account)) {
-            accounts.put(account.id(), account);
-            managedToAddAccount = true;
-        }
-        return managedToAddAccount;
+        /* null if added, else returns the current value.*/
+        return accounts.putIfAbsent(account.id(), account) == null;
     }
 
+    /*	replace(K key, V oldValue, V newValue)
+    Replaces the entry for the specified key only if currently mapped to the specified value.*/
     public synchronized boolean update(Account account) {
-        boolean managedToUpdateAccount = false;
-        if (getById(account.id()).isPresent()) {
-            add(account);
-        }
-        return managedToUpdateAccount;
+        return accounts.replace(account.id(), getById(account.id()).get(), account);
     }
 
     public synchronized void delete(int id) {
-        if (getById(id).isPresent()) {
-            accounts.remove(id);
-        }
+        accounts.remove(id);
+
     }
 
     public synchronized Optional<Account> getById(int id) {
@@ -40,15 +33,17 @@ public class AccountStorage {
 
     public synchronized boolean transfer(int fromId, int toId, int amount) {
         boolean managedToTransfer = false;
+        Optional<Account> accountTransferFrom =  getById(fromId);
+        Optional<Account> accountTransferTo =  getById(toId);
+
         int fromAccAmount = getById(fromId).get().amount();
         int toAccAmount = getById(toId).get().amount();
-        if (getById(fromId).isPresent() && getById(toId).isPresent()
-        && getById(fromId).get().amount() >= amount & amount > 0) {
 
-            update(new Account(fromId, fromAccAmount - amount));
-            update(new Account(toId, toAccAmount + amount));
+        if (accountTransferFrom.isPresent() && accountTransferTo.isPresent()
+                && accountTransferFrom.get().amount() >= amount & amount > 0) {
 
-            managedToTransfer = true;
+            managedToTransfer = update(new Account(fromId, fromAccAmount - amount))
+            && update(new Account(toId, toAccAmount + amount));
         }
         return managedToTransfer;
     }

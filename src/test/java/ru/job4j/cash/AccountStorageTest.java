@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class AccountStorageTest {
 
     @Test
-    void whenAdd() {
+    void whenAddIsSuccessful() {
         var storage = new AccountStorage();
         storage.add(new Account(1, 100));
         var firstAccount = storage.getById(1)
@@ -19,13 +19,27 @@ class AccountStorageTest {
     }
 
     @Test
-    void whenUpdate() {
+    void whenAddFails() {
+        var storage = new AccountStorage();
+        storage.add(new Account(1, 100));
+        assertThat(storage.add(new Account(1, 100))).isFalse();
+    }
+
+    @Test
+    void whenUpdateIsSuccessfulCheckAmount() {
         var storage = new AccountStorage();
         storage.add(new Account(1, 100));
         storage.update(new Account(1, 200));
         var firstAccount = storage.getById(1)
                 .orElseThrow(() -> new IllegalStateException("Not found account by id = 1"));
         assertThat(firstAccount.amount()).isEqualTo(200);
+    }
+
+    @Test
+    void whenUpdateIsSuccessfulCheckBoolean() {
+        var storage = new AccountStorage();
+        storage.add(new Account(1, 100));
+        assertThat(storage.update(new Account(1, 200))).isTrue();
     }
 
     @Test
