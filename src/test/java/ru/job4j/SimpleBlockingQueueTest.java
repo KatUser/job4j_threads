@@ -10,13 +10,7 @@ class SimpleBlockingQueueTest {
         SimpleBlockingQueue<Integer> simpleBlockingQueue = new SimpleBlockingQueue<>(2);
 
         Thread producerThread = new Thread(
-                () -> {
-                    try {
-                        simpleBlockingQueue.offer(1);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                () -> simpleBlockingQueue.offer(1)
         );
 
         Thread consumerThread = new Thread(
@@ -42,13 +36,7 @@ class SimpleBlockingQueueTest {
         SimpleBlockingQueue<Integer> simpleBlockingQueue = new SimpleBlockingQueue<>(2);
 
         Thread producerThread = new Thread(
-                () -> {
-                    try {
-                        simpleBlockingQueue.offer(1);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                () -> simpleBlockingQueue.offer(1)
         );
 
         Thread consumerThread = new Thread(

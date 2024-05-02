@@ -18,9 +18,14 @@ public class SimpleBlockingQueue<T> {
         this.queueSizeLimit = queueSizeLimit;
     }
 
-    public synchronized void offer(T value) throws InterruptedException {
+    public synchronized void offer(T value)  {
         while (queue.size() == queueSizeLimit) {
-            wait();
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
         }
         queue.add(value);
         notifyAll();
