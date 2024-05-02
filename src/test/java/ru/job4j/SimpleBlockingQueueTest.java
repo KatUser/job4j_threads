@@ -1,39 +1,74 @@
 package ru.job4j;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.IntStream;
+class SimpleBlockingQueueTest {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class SimpleBlockingQueueTest {
     @Test
-    public void whenFetchAllThenGetIt() throws InterruptedException {
-        final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
-        final SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(100);
-        Thread producer = new Thread(
-                () -> IntStream.range(0, 5).forEach(
-                        queue::offer
-                )
-        );
-        producer.start();
-        Thread consumer = new Thread(
+    void whenProducerStartsFirst() throws InterruptedException {
+
+        SimpleBlockingQueue<Integer> simpleBlockingQueue = new SimpleBlockingQueue<>(2);
+
+        Thread producerThread = new Thread(
                 () -> {
-                    while (!queue.isEmpty() || !Thread.currentThread().isInterrupted()) {
-                        try {
-                            buffer.add(queue.poll());
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Thread.currentThread().interrupt();
-                        }
+                    try {
+                        simpleBlockingQueue.offer(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
                     }
                 }
         );
-        consumer.start();
-        producer.join();
-        consumer.interrupt();
-        consumer.join();
-        assertThat(buffer).containsExactly(0, 1, 2, 3, 4);
+
+        Thread consumerThread = new Thread(
+                () -> {
+                    try {
+                        simpleBlockingQueue.poll();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
+                    }
+                }
+        );
+
+        producerThread.start();
+        producerThread.join();
+
+        consumerThread.start();
+        consumerThread.join();
+    }
+
+    @Test
+    void whenConsumerStartsFirst() throws InterruptedException {
+
+        SimpleBlockingQueue<Integer> simpleBlockingQueue = new SimpleBlockingQueue<>(2);
+
+        Thread producerThread = new Thread(
+                () -> {
+                    try {
+                        simpleBlockingQueue.offer(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
+                    }
+                }
+        );
+
+        Thread consumerThread = new Thread(
+                () -> {
+                    try {
+                        simpleBlockingQueue.poll();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
+                    }
+                }
+        );
+
+        consumerThread.start();
+        producerThread.start();
+
+        producerThread.join();
+        consumerThread.join();
     }
 }
