@@ -10,18 +10,18 @@ class CASCountTest {
     public void whenTwoThreads() throws InterruptedException {
         CASCount casCount = new CASCount();
 
-        Thread threadOne = new Thread(
+        Thread threadFirst = new Thread(
                 casCount::increment
         );
 
-        Thread threadTwo = new Thread(
+        Thread threadSecond = new Thread(
                 casCount::increment
         );
 
-        threadTwo.start();
-        threadOne.start();
-        threadTwo.join();
-        threadOne.join();
+        threadSecond.start();
+        threadFirst.start();
+        threadSecond.join();
+        threadFirst.join();
 
         assertThat(casCount.get()).isEqualTo(2);
     }
@@ -30,11 +30,11 @@ class CASCountTest {
     public void whenTwoThreadsAndOneWithForCycle() throws InterruptedException {
         CASCount casCount = new CASCount();
 
-        Thread threadOne = new Thread(
+        Thread threadFirst = new Thread(
                 casCount::increment
         );
 
-        Thread threadTwo = new Thread(
+        Thread threadSecond = new Thread(
                 () -> {
                     for (int i = casCount.get(); i <= 100; i++) {
                         casCount.increment();
@@ -42,12 +42,39 @@ class CASCountTest {
                 }
         );
 
-        threadOne.start();
-        threadOne.join();
+        threadFirst.start();
+        threadFirst.join();
 
-        threadTwo.start();
-        threadTwo.join();
+        threadSecond.start();
+        threadSecond.join();
 
         assertThat(casCount.get()).isEqualTo(101);
+    }
+
+    @Test
+    public void whenThreeThreads() throws InterruptedException {
+        CASCount casCount = new CASCount();
+
+        Thread threadFirst = new Thread(
+                casCount::increment
+        );
+
+        Thread threadSecond = new Thread(
+                casCount::increment
+        );
+
+        Thread threadThird = new Thread(
+                casCount::increment
+        );
+
+        threadThird.start();
+        threadSecond.start();
+        threadFirst.start();
+
+        threadThird.join();
+        threadSecond.join();
+        threadFirst.join();
+
+        assertThat(casCount.get()).isEqualTo(3);
     }
 }
