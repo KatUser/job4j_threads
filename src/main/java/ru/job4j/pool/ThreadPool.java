@@ -8,24 +8,24 @@ import java.util.List;
 public class ThreadPool {
     private final List<Thread> threads = new LinkedList<>();
     private final SimpleBlockingQueue<Runnable> tasks = new SimpleBlockingQueue<>(100);
+    private static final int SIZE = Runtime.getRuntime().availableProcessors();
 
     public ThreadPool() {
-        int size = Runtime.getRuntime().availableProcessors();
-        while (size > 0) {
-            Thread thread = new Thread(
-                    () -> {
-                        try {
-                            tasks.poll().run();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            Thread.currentThread().interrupt();
+        for (int i = 0; i < SIZE; i++) {
+            threads.add(
+                    new Thread(() -> {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            try {
+                                tasks.poll().run();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                                Thread.currentThread().interrupt();
+                            }
                         }
-                    }
+                    })
             );
-            size--;
-            threads.add(thread);
+            threads.get(i).start();
         }
-        threads.forEach(Thread::start);
     }
 
     public void work(Runnable job) throws InterruptedException {
@@ -38,12 +38,9 @@ public class ThreadPool {
 
     public static void main(String[] args) throws InterruptedException {
         ThreadPool threadPool = new ThreadPool();
-        for (int i = 0; i <= 5; i++) {
-            int jobNumber = i;
-            threadPool.work(() -> {
-                System.out.println(Thread.currentThread().getName()
-                        + ": Job " + jobNumber);
-            });
+        for (int i = 0; i < 5; i++) {
+            threadPool.work(() -> System.out.println("Job is in running with "
+            + Thread.currentThread().getName()));
         }
         threadPool.shutdown();
     }
