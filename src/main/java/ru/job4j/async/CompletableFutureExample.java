@@ -37,7 +37,7 @@ public class CompletableFutureExample {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    System.out.println("Кошка : я купип жрадло");
+                    System.out.println("Кошка : я купип жрадло " + catFood);
                     return catFood;
                 }
         );
@@ -82,8 +82,99 @@ public class CompletableFutureExample {
         System.out.println("Куплено: " + ct.get());
     }
 
+    public static void thenRunExample() throws Exception {
+        CompletableFuture<Void> gtt = goToTrash();
+        gtt.thenRun(() -> {
+            int count = 0;
+            while (count < 3) {
+                System.out.println("Сын : я мою руки");
+                try {
+                    TimeUnit.MILLISECONDS.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                count++;
+            }
+            System.out.println("Сын : руки я помыл");
+        });
+        iWork();
+    }
+
+    public static void thenAcceptExample() throws Exception {
+        CompletableFuture<String> ct = buyCatFood("Вискас");
+        ct.thenAccept((catFood) -> System.out.println("Кошка : поставила "
+                + catFood + " на полку"));
+        iWork();
+        System.out.println("Куплено " + ct.get());
+    }
+
+    public static void thenComposeExample() throws Exception {
+        CompletableFuture<String> result = feedCat().thenCompose(
+                p -> buyCatFood("Вискассс")
+        );
+        result.get();
+    }
+
+    public static void thenCombineExample() throws Exception {
+        CompletableFuture<String> result = buyCatFood("Риба")
+                .thenCombine(buyCatFood("Сухой корм"),
+                        (r1, r2) -> "Куплены " + r1 + " и " + r2);
+        iWork();
+        System.out.println(result.get());
+    }
+
+    public static CompletableFuture<Void> washPaws(String name) {
+        return CompletableFuture.runAsync(
+                () -> {
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(name + " моет лапки");
+                }
+        );
+    }
+
+    public static void allOfExample() throws Exception {
+        CompletableFuture<Void> all = CompletableFuture.allOf(
+                washPaws("Буся"), washPaws("Пушок"),
+                washPaws("Вася"), washPaws("Барсик")
+        );
+        TimeUnit.SECONDS.sleep(3);
+    }
+
+    public static CompletableFuture<String> whoIsWashingPaws(String name) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        TimeUnit.SECONDS.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return name + " моет лапки";
+                }
+        );
+    }
+
+    public static void anyOfExample() throws Exception {
+        CompletableFuture<Object> first = CompletableFuture.anyOf(
+                whoIsWashingPaws("Буся"), whoIsWashingPaws("Пушок"),
+                whoIsWashingPaws("Вася"), whoIsWashingPaws("Барсик")
+        );
+        System.out.println("Кто сейчас моет лапки?");
+        TimeUnit.SECONDS.sleep(1);
+        System.out.println(first.get());
+    }
+
     public static void main(String[] args) throws Exception {
         runAsyncExample();
         supplyAsyncExample();
+        thenRunExample();
+        thenAcceptExample();
+        thenComposeExample();
+        thenCombineExample();
+        allOfExample();
+        anyOfExample();
     }
 }
