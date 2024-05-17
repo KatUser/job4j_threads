@@ -21,7 +21,7 @@ public class ParallelSearch<T> extends RecursiveTask<Integer> {
     @Override
     protected Integer compute() {
         if (to - from + 1 <= 10) {
-            return List.of(array).indexOf(searched);
+            return linearSearch(array, searched);
         }
         int middle = (from + to) / 2;
         ParallelSearch<T> parallelSearchLeft = new ParallelSearch<>(
@@ -34,6 +34,10 @@ public class ParallelSearch<T> extends RecursiveTask<Integer> {
         int right = parallelSearchRight.join();
 
         return Math.max(left, right);
+    }
+
+    private static <T> int linearSearch(T[] array, T searched) {
+        return List.of(array).indexOf(searched);
     }
 
     public static <T> int search(T[] array, T searched) {
