@@ -7,11 +7,11 @@ import java.util.concurrent.ExecutionException;
 
 public class GetMatrixSum {
     public static int[] asyncSum(int[][] matrix) throws ExecutionException, InterruptedException {
-        int n = matrix.length; // 3
-        int[] sums = new int[2 * n]; // 3 * 2 (6)
+        int n = matrix.length;
+        int[] sums = new int[2 * n];
         Map<Integer, CompletableFuture<Integer>> futures = new HashMap<>();
-        futures.put(0, getMainDiagonalTask(matrix, 0, n - 1, 0)); // n  - 1 = 2
-        for (int k = 1; k <= n; k++) { // k <= 2, k++
+        futures.put(0, getMainDiagonalTask(matrix, 0, n - 1, 0));
+        for (int k = 1; k <= n; k++) {
             futures.put(k, getTask(matrix, 0, k - 1,  k - 1));
             if (k < n) {
                 futures.put(2 * n - k, getTask(matrix, n - k, n - 1, n - 1));
