@@ -2,51 +2,10 @@ package ru.job4j.pools;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class RolColSum {
-
-    public static class Sums {
-        private final int rowSum;
-        private final int colSum;
-
-        public Sums(int rowSum, int colSum) {
-            this.rowSum = rowSum;
-            this.colSum = colSum;
-        }
-
-        public int getRowSum() {
-            return rowSum;
-        }
-
-        public int getColSum() {
-            return colSum;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("{sum of rows: %s} {sum of columns: %s}", rowSum, colSum);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Sums sums = (Sums) o;
-            return rowSum == sums.rowSum && colSum == sums.colSum;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(rowSum, colSum);
-        }
-    }
 
     public static Sums[] sum(int[][] matrix) {
         int count = matrix.length;
