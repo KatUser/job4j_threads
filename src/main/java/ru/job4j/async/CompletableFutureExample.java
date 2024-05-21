@@ -100,6 +100,13 @@ public class CompletableFutureExample {
         iWork();
     }
 
+    public static  void thenApplyExample() throws Exception {
+        CompletableFuture<String> bm = buyProduct("Хлеп")
+                .thenApply((product) -> "Кошка : держи " + product);
+        iWork();
+        System.out.println(bm.get());
+    }
+
     public static void thenAcceptExample() throws Exception {
         CompletableFuture<String> ct = buyCatFood("Вискас");
         ct.thenAccept((catFood) -> System.out.println("Кошка : поставила "
@@ -176,5 +183,6 @@ public class CompletableFutureExample {
         thenCombineExample();
         allOfExample();
         anyOfExample();
+        thenApplyExample();
     }
 }
